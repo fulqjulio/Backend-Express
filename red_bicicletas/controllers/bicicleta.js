@@ -1,7 +1,7 @@
 var Bicicleta = require('../models/bicicleta');
 
-exports.bicicleta_list = function(req, res){
-    res.render('bicicletas/index', {bicis: Bicicleta.allBicis});
+exports.bicicleta_list = async function(req, res){
+    res.render('bicicletas/index', {bicis: await Bicicleta.allBicis()});
 }
 
 exports.bicicleta_create_get = function(req, res){
@@ -16,8 +16,8 @@ exports.bicicleta_create_post = function(req, res){
     res.redirect('/bicicletas');
 }
 
-exports.bicicleta_update_get = function(req, res) {
-    var bici = Bicicleta.findById(req.params.id);
+exports.bicicleta_update_get = async function(req, res) {
+    var bici = await Bicicleta.findById(req.params.id);
 
     res.render('bicicletas/update', {bici});
 }
