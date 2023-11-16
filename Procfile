@@ -1,1 +1,1 @@
-web: cd red_bicicletas/red-bicicletas && npm start
+web: cd red_bicicletas && npm start
