@@ -36,7 +36,6 @@ app.use(
 
 var mongoose = require("mongoose");
 
-// mongoose.connect("mongodb://127.0.0.1:27017/red_bicicletas");
 mongoose.connect(process.env.MONGO_URI);
 mongoose.Promise = global.Promise;
 var db = mongoose.connection;
