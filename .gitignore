@@ -1,2 +1,3 @@
 node_modules/
-red_bicicletas/.env
+.env
+.prettierrc
