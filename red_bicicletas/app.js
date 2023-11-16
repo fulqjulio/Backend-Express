@@ -1,3 +1,4 @@
+require('dotenv').config();
 var createError = require("http-errors");
 var express = require("express");
 var path = require("path");
@@ -5,7 +6,7 @@ var cookieParser = require("cookie-parser");
 var logger = require("morgan");
 const passport = require("./config/passport");
 const session = require("express-session");
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
 
 const Usuario = require("./models/usuario");
 const Token = require("./models/token");
@@ -15,14 +16,14 @@ var usuariosRouter = require("./routes/usuarios");
 var tokenRouter = require("./routes/token");
 var bicicletasRouter = require("./routes/bicicletas");
 
-var authAPIRouter = require('./routes/api/auth');
+var authAPIRouter = require("./routes/api/auth");
 var bicicletasAPIRouter = require("./routes/api/bicicletas");
 var usuariosAPIRouter = require("./routes/api/usuarios");
 
 var app = express();
 const store = new session.MemoryStore();
 
-app.set('secretKey', 'red_biciclita_!!!!!.**1121324');
+app.set("secretKey", "red_biciclita_!!!!!.**1121324");
 app.use(
     session({
         cookie: { maxAge: 240 * 60 * 60 * 1000 },
@@ -35,7 +36,8 @@ app.use(
 
 var mongoose = require("mongoose");
 
-mongoose.connect("mongodb://127.0.0.1:27017/red_bicicletas");
+// mongoose.connect("mongodb://127.0.0.1:27017/red_bicicletas");
+mongoose.connect(process.env.MONGO_URI);
 mongoose.Promise = global.Promise;
 var db = mongoose.connection;
 db.on("error", console.error.bind(console, "MongoDB connection error"));

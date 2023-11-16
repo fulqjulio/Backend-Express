@@ -9,11 +9,10 @@ exports.usuarios_list = async function(req, res){
 };
 
 exports.usuarios_create = async function(req, res){
-    var usuario = new Usuario({ nombre: req.body.nombre });
+    var usuario = new Usuario({ nombre: req.body.nombre, email: req.body.email, password: req.body.password });
     
-    await usuario.save().then(
-        res.status(200).json(usuario)
-    );
+    await usuario.save()
+    res.status(200).json(usuario)
 };
 
 exports.usuario_reservar = async function(req, res){
