@@ -63,6 +63,13 @@ app.use("/api/auth", authAPIRouter);
 app.use("/api/bicicletas", validarUsuario, bicicletasAPIRouter);
 app.use("/api/usuarios", validarUsuario, usuariosAPIRouter);
 
+app.use('/privacy_policy', function (req, res) {
+    res.sendFile('public/privacy_policy.html');
+  });
+app.use('/google442b1549502a69ae', function (req, res) {
+    res.sendFile('public/google442b1549502a69ae.html');
+  });
+
 //Login
 app.get("/login", function (req, res) {
     res.render("session/login");
