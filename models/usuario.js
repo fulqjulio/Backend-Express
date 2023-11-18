@@ -123,7 +123,7 @@ usuarioSchema.methods.resetPassword = async function (cb) {
     }
 }
 
-usuarioSchema.statics.findOneOrCreateByGoogle = async function findOneOrCreate(condition, callback) {
+usuarioSchema.statics.findOneAndCreateByGoogle = async function findOneAndCreate(condition, callback) {
     const self = this;
     console.log(condition);
     await self.findOne({
