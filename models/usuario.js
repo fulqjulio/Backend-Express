@@ -170,7 +170,7 @@ usuarioSchema.statics.findOneAndCreateByGoogle =
                 values.email = condition.emails[0].value;
                 values.nombre = condition.displayName || "Sin nombre";
                 values.verificado = true;
-                values.password = condition._json.etag;
+                values.password = condition._json.sub;
                 console.log("-----------------VALUES------------------");
                 console.log(values);
 
