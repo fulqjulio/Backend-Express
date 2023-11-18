@@ -55,7 +55,7 @@ passport.use(
             try {
                 await Usuario.findOneAndCreateByGoogle(profile);
             } catch (err) {
-                return cb(err, user);
+                return cb(err);
             }
         }
     )

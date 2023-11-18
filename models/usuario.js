@@ -142,10 +142,13 @@ usuarioSchema.statics.findOneOrCreateByGoogle = async function findOneOrCreate(c
             values.password = condition._json.etag;
             console.log('-----------------VALUES------------------');
             console.log(values);
-            await self.create(values, (err, result) => {
-                if (err) { console.log(err); }
-                return callback(err, result);
-            })
+            try {
+                let result = await self.create(values);
+                return callback(null, result);
+            } catch (err) {
+                console.log(err);
+                return callback(err, null);
+            }
         }
     })
 }
