@@ -53,9 +53,10 @@ passport.use(
         async function (accessToken, refreshToken, profile, cb) {
             console.log(profile);
             try {
-                await Usuario.findOneAndCreateByGoogle(profile);
+                let user = await Usuario.findOneAndCreateByGoogle(profile);
+                return cb(null, user)
             } catch (err) {
-                return cb(err);
+                return cb(err, null);
             }
         }
     )

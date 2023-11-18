@@ -2,13 +2,13 @@ var mongoose = require("mongoose");
 var Schema = mongoose.Schema;
 var Reserva = require("./reserva");
 
-const uniqueValidator = require('mongoose-unique-validator');
-const bcrypt = require('bcrypt');
-const crypto = require('crypto');
+const uniqueValidator = require("mongoose-unique-validator");
+const bcrypt = require("bcrypt");
+const crypto = require("crypto");
 const saltRounds = 10;
 
-const Token = require('./token');
-const mailer = require('../mailer/mailer');
+const Token = require("./token");
+const mailer = require("../mailer/mailer");
 
 const validateEmail = function (email) {
     const re =
@@ -25,30 +25,34 @@ var usuarioSchema = new Schema({
     email: {
         type: String,
         trim: true,
-        required: [true, 'El email es obligatorio'],
+        required: [true, "El email es obligatorio"],
         lowercase: true,
         unique: true,
-        validate: [validateEmail, 'Por Favor, ingrese un email valido'],
-        match: [/^(?:[^<>()[\].,;:\s@"]+(\.[^<>()[\].,;:\s@"]+)*|"[^\n"]+")@(?:[^<>()[\].,;:\s@"]+\.)+[^<>()[\]\.,;:\s@"]{2,63}$/i]
+        validate: [validateEmail, "Por Favor, ingrese un email valido"],
+        match: [
+            /^(?:[^<>()[\].,;:\s@"]+(\.[^<>()[\].,;:\s@"]+)*|"[^\n"]+")@(?:[^<>()[\].,;:\s@"]+\.)+[^<>()[\]\.,;:\s@"]{2,63}$/i,
+        ],
     },
     password: {
         type: String,
-        required: [true, 'El password es obligatorio']
+        required: [true, "El password es obligatorio"],
     },
     passwordResetToken: String,
     passwordResetTokenExpire: Date,
     verificado: {
         type: Boolean,
-        default: false
+        default: false,
     },
     /* googleId: String,
     facebookId: String */
 });
 
-usuarioSchema.plugin(uniqueValidator, { message: 'El {PATH} ya existe con otro usuario.' });
+usuarioSchema.plugin(uniqueValidator, {
+    message: "El {PATH} ya existe con otro usuario.",
+});
 
-usuarioSchema.pre('save', function (next) {
-    if (this.isModified('password')) {
+usuarioSchema.pre("save", function (next) {
+    if (this.isModified("password")) {
         this.password = bcrypt.hashSync(this.password, saltRounds);
     }
     next();
@@ -56,7 +60,7 @@ usuarioSchema.pre('save', function (next) {
 
 usuarioSchema.methods.validPassword = function (password) {
     return bcrypt.compareSync(password, this.password);
-}
+};
 
 usuarioSchema.methods.reservar = async function (biciId, desde, hasta) {
     var reserva = new Reserva({
@@ -70,7 +74,10 @@ usuarioSchema.methods.reservar = async function (biciId, desde, hasta) {
 };
 
 usuarioSchema.methods.enviar_email_bienvenida = async function (cb) {
-    const token = new Token({ _userId: this.id, token: crypto.randomBytes(16).toString("hex") });
+    const token = new Token({
+        _userId: this.id,
+        token: crypto.randomBytes(16).toString("hex"),
+    });
     const email_destination = this.email;
 
     try {
@@ -78,11 +85,15 @@ usuarioSchema.methods.enviar_email_bienvenida = async function (cb) {
         const mailOption = {
             from: process.env.from_email,
             to: email_destination,
-            subject: 'Verificacion de cuenta',
-            text: 'Hola \n\n' +
-                'Por favor, para verificar su cuenta haga click en el siguiente link:\n\n' +
+            subject: "Verificacion de cuenta",
+            text:
+                "Hola \n\n" +
+                "Por favor, para verificar su cuenta haga click en el siguiente link:\n\n" +
                 // process.env.HOST + '/token/confirmation/' + token.token + '\n'
-                 'http://localhost:3000'+ '/token/confirmation/' + token.token + '\n'
+                "http://localhost:3000" +
+                "/token/confirmation/" +
+                token.token +
+                "\n",
         };
 
         mailer.sendMail(mailOption, function (err) {
@@ -90,68 +101,86 @@ usuarioSchema.methods.enviar_email_bienvenida = async function (cb) {
                 return console.log(err.message);
             }
 
-            console.log('Se ha enviado correo de verifiacion a:' + email_destination);
+            console.log(
+                "Se ha enviado correo de verifiacion a:" + email_destination
+            );
             cb(null);
         });
     } catch (err) {
         return cb(err);
     }
-}
+};
 
 usuarioSchema.methods.resetPassword = async function (cb) {
-    const token = new Token({ _userId: this.id, token: crypto.randomBytes(16).toString("hex") });
+    const token = new Token({
+        _userId: this.id,
+        token: crypto.randomBytes(16).toString("hex"),
+    });
     const email_destination = this.email;
     try {
         await token.save();
         const mailOption = {
-            from: 'no-reply@red-bicicleta.com',
+            from: "no-reply@red-bicicleta.com",
             to: email_destination,
-            subject: 'Reseteo de password de cuenta',
-            text: 'Hola \n\n' +
-                'Por favor, para resetear su cuenta haga click en el siguiente link:\n\n' +
-                'http://localhost:3000' + '/resetPassword/' + token.token + '\n'
+            subject: "Reseteo de password de cuenta",
+            text:
+                "Hola \n\n" +
+                "Por favor, para resetear su cuenta haga click en el siguiente link:\n\n" +
+                "http://localhost:3000" +
+                "/resetPassword/" +
+                token.token +
+                "\n",
         };
         mailer.sendMail(mailOption, function (err) {
-            if (err) { return cb(err); }
-    
-            console.log('Se envio un email para resetear el password a:' + email_destination + '.');
+            if (err) {
+                return cb(err);
+            }
+
+            console.log(
+                "Se envio un email para resetear el password a:" +
+                    email_destination +
+                    "."
+            );
         });
-    
+
         cb(null);
     } catch (err) {
         return cb(err);
     }
-}
+};
 
-usuarioSchema.statics.findOneAndCreateByGoogle = async function findOneAndCreate(condition, callback) {
-    const self = this;
-    console.log(condition);
-    await self.findOne({
-        $or: [{ 'googleId': condition.id }, { 'email': condition.emails[0].value }]
-    }, async (err, result) => {
-        if (result) {
-            callback(err, result);
-        } else {
-            console.log('----------------CONDITION----------------');
-            console.log(condition);
-            let values = {};
-            values.googleId = condition.id;
-            values.email = condition.emails[0].value;
-            values.nombre = condition.displayName || 'Sin nombre';
-            values.verificado = true;
-            values.password = condition._json.etag;
-            console.log('-----------------VALUES------------------');
-            console.log(values);
-            try {
+usuarioSchema.statics.findOneAndCreateByGoogle =
+    async function findOneAndCreate(condition, callback) {
+        const self = this;
+        console.log(condition);
+        try {
+            let result = await self.findOne({
+                $or: [
+                    { googleId: condition.id },
+                    { email: condition.emails[0].value },
+                ],
+            });
+            if (result) {
+               return callback(null, result);
+            } else {
+                console.log("----------------CONDITION----------------");
+                console.log(condition);
+                let values = {};
+                values.googleId = condition.id;
+                values.email = condition.emails[0].value;
+                values.nombre = condition.displayName || "Sin nombre";
+                values.verificado = true;
+                values.password = condition._json.etag;
+                console.log("-----------------VALUES------------------");
+                console.log(values);
+
                 let result = await self.create(values);
                 return callback(null, result);
-            } catch (err) {
-                console.log(err);
-                return callback(err, null);
             }
+        } catch (err) {
+            console.error(err);
+            return callback(err, null);
         }
-    })
-}
-
+    };
 
 module.exports = mongoose.model("Usuario", usuarioSchema);
