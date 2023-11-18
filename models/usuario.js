@@ -150,7 +150,7 @@ usuarioSchema.methods.resetPassword = async function (cb) {
 };
 
 usuarioSchema.statics.findOneAndCreateByGoogle =
-    async function findOneAndCreate(condition, callback) {
+    async function findOneAndCreate(condition) {
         const self = this;
         console.log(condition);
         try {
@@ -161,7 +161,7 @@ usuarioSchema.statics.findOneAndCreateByGoogle =
                 ],
             });
             if (result) {
-               return callback(null, result);
+               return result;
             } else {
                 console.log("----------------CONDITION----------------");
                 console.log(condition);
@@ -175,11 +175,10 @@ usuarioSchema.statics.findOneAndCreateByGoogle =
                 console.log(values);
 
                 let result = await self.create(values);
-                return callback(null, result);
+                return result;
             }
         } catch (err) {
             console.error(err);
-            return callback(err, null);
         }
     };
 
