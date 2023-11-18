@@ -1,4 +1,4 @@
-require('dotenv').config();
+require("dotenv").config();
 var createError = require("http-errors");
 var express = require("express");
 var path = require("path");
@@ -7,6 +7,7 @@ var logger = require("morgan");
 const passport = require("./config/passport");
 const session = require("express-session");
 const jwt = require("jsonwebtoken");
+const MongoDBStore = require("connect-mongodb-session")(session);
 
 const Usuario = require("./models/usuario");
 const Token = require("./models/token");
@@ -20,8 +21,21 @@ var authAPIRouter = require("./routes/api/auth");
 var bicicletasAPIRouter = require("./routes/api/bicicletas");
 var usuariosAPIRouter = require("./routes/api/usuarios");
 
-var app = express();
-const store = new session.MemoryStore();
+let app = express();
+
+let store;
+if (process.env.NODE_ENV === "development") {
+    store = new session.MemoryStore();
+} else {
+    store = new MongoDBStore({
+        uri: process.env.MONGO_URI,
+        collection: "sessions",
+    });
+    store.on("error", function (error) {
+        assert.ifError(error);
+        assert.ok(false);
+    });
+}
 
 app.set("secretKey", "red_biciclita_!!!!!.**1121324");
 app.use(
@@ -63,12 +77,25 @@ app.use("/api/auth", authAPIRouter);
 app.use("/api/bicicletas", validarUsuario, bicicletasAPIRouter);
 app.use("/api/usuarios", validarUsuario, usuariosAPIRouter);
 
-app.use('/privacy_policy', function (req, res) {
-    res.sendFile('public/privacy_policy.html');
-  });
-app.use('/google442b1549502a69ae', function (req, res) {
-    res.sendFile('public/google442b1549502a69ae.html');
-  });
+app.use("/privacy_policy", function (req, res) {
+    res.sendFile("public/privacy_policy.html");
+});
+app.use("/google442b1549502a69ae", function (req, res) {
+    res.sendFile("public/google442b1549502a69ae.html");
+});
+
+app.get('/auth/google',
+  passport.authenticate('google', {
+    scope: [
+      'https://www.googleapis.com/auth/plus.login',
+      'https://www.googleapis.com/auth/plus.profile.emails.read']
+  })
+);
+app.get('/auth/google/callback',
+  passport.authenticate('google', { 
+    successRedirect: '/',
+    failureRedirect: '/error' })
+);
 
 //Login
 app.get("/login", function (req, res) {

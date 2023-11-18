@@ -43,22 +43,23 @@ passport.use(
     })
 );
 
-/* passport.use(
+passport.use(
     new GoogelStrategy(
         {
             clientID: process.env.GOOGLE_ID_CLIENT,
             clientSecret: process.env.GOOGLE_SECRET_CLIENT,
             callbackURL: process.env.HOST + "/auth/google/callbachk",
         },
-        function (accessToken, refreshToken, profile, cb) {
+        async function (accessToken, refreshToken, profile, cb) {
             console.log(profile);
-
-            Usuario.findOneAndCreateByGoogle(profile, function (err, user) {
+            try {
+                await Usuario.findOneAndCreateByGoogle(profile);
+            } catch (err) {
                 return cb(err, user);
-            });
+            }
         }
     )
-); */
+);
 
 passport.serializeUser(function (user, cb) {
     cb(null, user.id);
