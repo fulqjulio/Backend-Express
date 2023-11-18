@@ -179,6 +179,7 @@ usuarioSchema.statics.findOneAndCreateByGoogle =
             }
         } catch (err) {
             console.error(err);
+            throw err;
         }
     };
 

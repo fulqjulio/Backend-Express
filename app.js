@@ -84,17 +84,21 @@ app.use("/google442b1549502a69ae", function (req, res) {
     res.sendFile("public/google442b1549502a69ae.html");
 });
 
-app.get('/auth/google',
-  passport.authenticate('google', {
-    scope: [
-      'https://www.googleapis.com/auth/plus.login',
-      'https://www.googleapis.com/auth/plus.profile.emails.read']
-  })
+app.get(
+    "/auth/google",
+    passport.authenticate("google", {
+        scope: [
+            "profile",
+            "email",
+        ],
+    })
 );
-app.get('/auth/google/callback',
-  passport.authenticate('google', { 
-    successRedirect: '/',
-    failureRedirect: '/error' })
+app.get(
+    "/auth/google/callback",
+    passport.authenticate("google", {
+        successRedirect: "/",
+        failureRedirect: "/error",
+    })
 );
 
 //Login
