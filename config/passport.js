@@ -46,8 +46,8 @@ passport.use(
 passport.use(
     new GoogelStrategy(
         {
-            clientID: process.env.GOOGLE_ID_CLIENT,
-            clientSecret: process.env.GOOGLE_SECRET_CLIENT,
+            clientID: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
             callbackURL: process.env.HOST + "/auth/google/callbachk",
         },
         async function (accessToken, refreshToken, profile, cb) {
