@@ -56,9 +56,9 @@ module.exports = {
             return next(err);
         }
     },
-    /* authFacebookToken: function(req, res, next){
+    authFacebookToken: async function(req, res, next){
         if(req.user){
-            req.user.save().then( ()=> {
+            await req.user.save().then( ()=> {
               const token = jwt.sign({id: req.user.id}, req.app.get('secretKey'), {expiresIn: '7d'});
               res.status(200).json({message: "Usuario encontrado", data: {user: req.user, token: token}});  
             }).catch( (err) => {
@@ -68,5 +68,5 @@ module.exports = {
         }else{
             res.status(401);
         }
-    }, */
+    },
 };

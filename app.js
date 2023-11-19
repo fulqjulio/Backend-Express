@@ -1,3 +1,4 @@
+require('newrelic');
 require("dotenv").config();
 var createError = require("http-errors");
 var express = require("express");
@@ -112,14 +113,14 @@ app.post("/login", function (req, res, next) {
         if (!usuario) return res.render("session/login", { info });
         req.logIn(usuario, function (err) {
             if (err) return next(err);
-            return res.redirect("/");
+            return res.render("index", {  title: 'Express', isLoggedIn: true });
         });
     })(req, res, next);
 });
 
 app.get("/logout", function (req, res) {
     req.logOut();
-    res.redirect("/login");
+    return res.render("index", { title: 'Express', isLoggedIn: false });
 });
 
 app.get("/forgotPassword", function (req, res) {

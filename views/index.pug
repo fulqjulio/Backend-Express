@@ -16,8 +16,12 @@ block content
             a.nav-link(href='/bicicletas') Bicicletas
           li.nav-item
             a.nav-link(href='#signup') Contacto
-          li.nav-item
-            a.nav-link(href='/login') LogIn
+          if isLoggedIn
+            li.nav-item
+              a.nav-link(href='/logout') Log Out
+          else
+            li.nav-item
+              a.nav-link(href='/login') Log In
   // Masthead
   header.masthead
     .container.px-4.px-lg-5.d-flex.h-100.align-items-center.justify-content-center

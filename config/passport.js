@@ -4,25 +4,23 @@ const LocalStrategy = require("passport-local").Strategy;
 const GoogelStrategy = require("passport-google-oauth20").Strategy;
 const FacebookStrategy = require("passport-facebook-token");
 
-/* passport.use(
+passport.use(
     new FacebookStrategy(
         {
-            clientID: process.env.FACEBOOK_APP_ID,
-            clientSecret: process.env.FACEBOOK_APP_SECRET,
+            clientID: process.env.FACEBOOK_CLIENT_ID,
+            clientSecret: process.env.FACEBOOK_CLIENT_SECRET,
         },
-        function (accessToken, refreshToken, profile, done) {
+        async function (accessToken, refreshToken, profile, done) {
             try {
-                User.findOneOrCreateByFacebook(profile, function (err, user) {
-                    if (err) console.log("err" + err);
-                    return done(err, user);
-                });
-            } catch (err2) {
-                console.log(err2);
-                return done(err2, null);
+                let user = await Usuario.findOneOrCreateByFacebook(profile);
+                return done(null, user);
+            } catch (err) {
+                console.error(err);
+                return done(err, null);
             }
         }
     )
-); */
+);
 
 passport.use(
     new LocalStrategy(async (email, password, done) => {
@@ -53,7 +51,7 @@ passport.use(
         async function (accessToken, refreshToken, profile, cb) {
             console.log(profile);
             try {
-                let user = await Usuario.findOneAndCreateByGoogle(profile);
+                let user = await Usuario.findOneOrCreateByGoogle(profile);
                 return cb(null, user)
             } catch (err) {
                 return cb(err, null);

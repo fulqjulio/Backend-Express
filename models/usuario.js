@@ -43,8 +43,8 @@ var usuarioSchema = new Schema({
         type: Boolean,
         default: false,
     },
-    /* googleId: String,
-    facebookId: String */
+    googleId: String,
+    facebookId: String
 });
 
 usuarioSchema.plugin(uniqueValidator, {
@@ -149,8 +149,8 @@ usuarioSchema.methods.resetPassword = async function (cb) {
     }
 };
 
-usuarioSchema.statics.findOneAndCreateByGoogle =
-    async function findOneAndCreate(condition) {
+usuarioSchema.statics.findOneOrCreateByGoogle =
+    async function findOneOrCreate(condition) {
         const self = this;
         console.log(condition);
         try {
@@ -171,6 +171,40 @@ usuarioSchema.statics.findOneAndCreateByGoogle =
                 values.nombre = condition.displayName || "Sin nombre";
                 values.verificado = true;
                 values.password = condition._json.sub;
+                console.log("-----------------VALUES------------------");
+                console.log(values);
+
+                let result = await self.create(values);
+                return result;
+            }
+        } catch (err) {
+            console.error(err);
+            throw err;
+        }
+    };
+
+usuarioSchema.statics.findOneOrCreateByFacebook =
+    async function findOneOrCreate(condition) {
+        const self = this;
+        console.log(condition);
+        try {
+            let result = await self.findOne({
+                $or: [
+                    { facebookId: condition.id },
+                    { email: condition.emails[0].value },
+                ],
+            });
+            if (result) {
+               return result;
+            } else {
+                console.log("----------------CONDITION----------------");
+                console.log(condition);
+                let values = {};
+                values.googleId = condition.id;
+                values.email = condition.emails[0].value;
+                values.nombre = condition.displayName || "Sin nombre";
+                values.verificado = true;
+                values.password = crypto.randomBytes(16).toString('hex');
                 console.log("-----------------VALUES------------------");
                 console.log(values);
 
